@@ -1,0 +1,158 @@
+{
+  "project_info": {
+    "project_number": "316217858377",
+    "firebase_url": "https://minglewise2019.firebaseio.com",
+    "project_id": "minglewise2019",
+    "storage_bucket": "minglewise2019.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:316217858377:android:5b2cb78a28dc08734d2298",
+        "android_client_info": {
+          "package_name": "com.appsynergies.mingle_wise_admin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "316217858377-bgs15jvtm5mt43f72bf8iu21iakk24hv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFvL47gio3UyHxjktj-_-OcbfTSD5IoTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "316217858377-bgs15jvtm5mt43f72bf8iu21iakk24hv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "316217858377-03mqfhe3ufdqe3kcafu9seisu8n8k764.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.appsynergies.minglewise",
+                "app_store_id": "1574084760"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:316217858377:android:628ce36ab6413b034d2298",
+        "android_client_info": {
+          "package_name": "com.appsynergies.minglewise"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "316217858377-435ocklkqateafcued25a2gm2v5rj0rb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsynergies.minglewise",
+            "certificate_hash": "c2cf57431984ebb2858886f385c9e60f8b32efd1"
+          }
+        },
+        {
+          "client_id": "316217858377-74r14cjbntngolm0cqelqucv138uoog2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsynergies.minglewise",
+            "certificate_hash": "0953477cd2ae206797ad355b23ca12dcb860bc5c"
+          }
+        },
+        {
+          "client_id": "316217858377-8qs29c7fj968s0o3loclm8bieenk19h1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsynergies.minglewise",
+            "certificate_hash": "5ee7839c29f1200e20c441d2ccb88b47cd331283"
+          }
+        },
+        {
+          "client_id": "316217858377-dtg20pffheok6b83opgsusiojtrj9qn6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsynergies.minglewise",
+            "certificate_hash": "9422c70278f8c2544f578009f5b61d0f34b2c3c0"
+          }
+        },
+        {
+          "client_id": "316217858377-ibpp2kid835lebgo5r8tg4g9l5q5847p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsynergies.minglewise",
+            "certificate_hash": "9d7bf0823fa250833c2318be0d6488719889ba36"
+          }
+        },
+        {
+          "client_id": "316217858377-jspdfir1fkdr747rb53l8qvtbf6d7ph8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsynergies.minglewise",
+            "certificate_hash": "ac1b348e219ccdbeb3eca1354439b27a2b689f13"
+          }
+        },
+        {
+          "client_id": "316217858377-n31r5nk1ta522htd3msp6b5i4hjv165b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsynergies.minglewise",
+            "certificate_hash": "5d4235fd211bab017a15e42264699da7bcc07078"
+          }
+        },
+        {
+          "client_id": "316217858377-r2kgbcttf4lkcve32ib0dnjfr8a5c00e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsynergies.minglewise",
+            "certificate_hash": "3005063f85e2621985cb2d86e1637d4d9713f2d8"
+          }
+        },
+        {
+          "client_id": "316217858377-vfivcjn7q9jnpsl9vei5raj50ccit5gs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appsynergies.minglewise",
+            "certificate_hash": "87922163df97b80ed82731ef1ffdb6707f913bbd"
+          }
+        },
+        {
+          "client_id": "316217858377-bgs15jvtm5mt43f72bf8iu21iakk24hv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFvL47gio3UyHxjktj-_-OcbfTSD5IoTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "316217858377-bgs15jvtm5mt43f72bf8iu21iakk24hv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "316217858377-03mqfhe3ufdqe3kcafu9seisu8n8k764.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.appsynergies.minglewise",
+                "app_store_id": "1574084760"
+              }
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-4774212650456391~7267898770"
+    }
+  ],
+  "configuration_version": "1"
+}
