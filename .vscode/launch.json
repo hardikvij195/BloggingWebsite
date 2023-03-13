@@ -5,11 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "chrome",
+            "name": "MingleWiseBloggingWebsite",
             "request": "launch",
-            "name": "Launch Chrome against localhost",
-            "url": "http://localhost:8000",
-            "webRoot": "${workspaceFolder}"
+            "type": "dart"
+        },
+        {
+            "name": "MingleWiseBloggingWebsite (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
         }
     ]
 }

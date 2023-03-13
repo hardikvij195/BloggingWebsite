@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:internship_website/homePage.dart';
+import 'package:internship_website/blogs/screens/home_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
@@ -12,8 +12,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final auth=FirebaseAuth.instance;
-  String email="", password="";
+  final auth = FirebaseAuth.instance;
+  String email = "", password = "";
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -23,7 +23,9 @@ class _LoginState extends State<Login> {
     return Scaffold(
       body: Container(
         height: height,
-        margin: EdgeInsets.symmetric(horizontal: width*0.4,),
+        margin: EdgeInsets.symmetric(
+          horizontal: width * 0.4,
+        ),
         //color: AppColors.backColor,
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: 40.0),
@@ -61,17 +63,19 @@ class _LoginState extends State<Login> {
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: (){
+                  onTap: () {
                     _login(email, password);
                   },
                   borderRadius: BorderRadius.circular(16.0),
                   child: Ink(
-                    padding: const EdgeInsets.symmetric(horizontal: 70.0, vertical: 18.0),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 70.0, vertical: 18.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16.0),
                       border: Border.all(color: Colors.blue.shade700),
                     ),
-                    child: const Text('Sign In',
+                    child: const Text(
+                      'Sign In',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         //color: AppColors.whiteColor,
@@ -88,13 +92,14 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Column passwordField(var size){
+  Column passwordField(var size) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 16.0),
-          child: Text('Password',
+          child: Text(
+            'Password',
             style: TextStyle(
               fontSize: 16.0,
               color: Colors.blue.shade900,
@@ -109,12 +114,12 @@ class _LoginState extends State<Login> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16.0),
               border: Border.all(color: Colors.grey)
-            //color: AppColors.whiteColor,
-          ),
+              //color: AppColors.whiteColor,
+              ),
           child: TextField(
-            onChanged: (value){
-              setState((){
-                password=value.trim();
+            onChanged: (value) {
+              setState(() {
+                password = value.trim();
               });
             },
             style: const TextStyle(
@@ -140,13 +145,14 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Column emailField(var size){
+  Column emailField(var size) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 16.0),
-          child: Text('Email',
+          child: Text(
+            'Email',
             style: TextStyle(
               fontSize: 16.0,
               color: Colors.blue.shade900,
@@ -161,12 +167,12 @@ class _LoginState extends State<Login> {
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16.0),
               border: Border.all(color: Colors.grey)
-            //color: AppColors.whiteColor,
-          ),
+              //color: AppColors.whiteColor,
+              ),
           child: TextField(
-            onChanged: (value){
-              setState((){
-                email=value.trim();
+            onChanged: (value) {
+              setState(() {
+                email = value.trim();
               });
             },
             style: const TextStyle(
@@ -191,40 +197,36 @@ class _LoginState extends State<Login> {
     );
   }
 
-  _login(String _email,String _password) async {
+  _login(String _email, String _password) async {
     User? updateUser = FirebaseAuth.instance.currentUser;
     late User user;
 
-    final firestoreInstance=FirebaseFirestore.instance;
-    var firebaseUser=FirebaseAuth.instance.currentUser;
-    bool verified=false;
+    final firestoreInstance = FirebaseFirestore.instance;
+    var firebaseUser = FirebaseAuth.instance.currentUser;
+    bool verified = false;
     try {
-      await auth.signInWithEmailAndPassword(
-          email: _email,
-          password: _password);
-      firestoreInstance.collection("DateUsers").doc(firebaseUser!.uid).get().then((value) async{
-        verified=value.data()!["isVerified"];
+      await auth.signInWithEmailAndPassword(email: _email, password: _password);
+      firestoreInstance
+          .collection("DateUsers")
+          .doc(firebaseUser!.uid)
+          .get()
+          .then((value) async {
+        verified = value.data()!["isVerified"];
 
-        if(verified==true){
-          const ScaffoldMessenger(
-              child: Text("Login successful.")
-          );
+        if (verified == true) {
+          const ScaffoldMessenger(child: Text("Login successful."));
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           prefs.setBool('remember', true);
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => const HomePage()));
-        }
-        else if(verified==false){
-          const ScaffoldMessenger(
-            child: Text("You are not verified.")
-          );
+        } else if (verified == false) {
+          const ScaffoldMessenger(child: Text("You are not verified."));
         }
       });
-    }
-    on FirebaseAuthException catch (error) {
+    } on FirebaseAuthException catch (error) {
       print(error.message);
       ScaffoldMessenger(
-          child: Text("${error.message}"),
+        child: Text("${error.message}"),
       );
     }
   }
