@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:html';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:html/parser.dart';
 import 'package:internship_website/blogs/model/blog_model.dart';
@@ -14,17 +15,18 @@ import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:html_parser_plus/html_parser_plus.dart';
 
-class CreateBlogScreen extends StatefulWidget {
-  const CreateBlogScreen({Key? key})
+class EditBlogScreen extends StatefulWidget {
+  final BlogModel model;
+  const EditBlogScreen({Key? key, required this.model})
       : super(key: key);
   @override
-  _CreateBlogScreenState createState() => _CreateBlogScreenState();
+  _EditBlogScreenState createState() => _EditBlogScreenState();
 }
 
-class _CreateBlogScreenState extends State<CreateBlogScreen> {
-  late final size = MediaQuery.of(context).size;
+class _EditBlogScreenState extends State<EditBlogScreen> {
+  late final model = widget.model;
   late final store = context.read<BlogsStore>();
-  String draftId = "";
+  late final size = MediaQuery.of(context).size;
 
   String result = '', headline = '', imgUrl = '', textOnlyResult = '', uid = '';
   late int i = 0,
@@ -49,23 +51,24 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
 
   @override
   void initState() {
+    
     super.initState();
-    store.createAndAddHeadlineOrThumbNailForBlog(
-      headingController.text, 'thumbNail');
+    //controller.setText('<p>abcd</p>');
     _controller = TextfieldTagsController();
   }
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
     final firestoreInstance = FirebaseFirestore.instance;
+
+    
 
     return GestureDetector(
         onTap: () {
           if (!kIsWeb) {
             controller.clearFocus();
           }
-          controller.setText(result);
+          controller.setText(model.content);
         },
         child: Scaffold(
             key: _scaffoldKey,
@@ -74,16 +77,17 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                 child: Column(
                   children: [
                     const Text('Article overview'),
-                    endDrawerValues("Words", wordCount),
-                    endDrawerValues("Images", imagesCount),
-                    endDrawerValues("Links", linksCount),
-                    endDrawerValues("YouTube videos", ytVideosCount),
+                    endDrawerValues("Words", model.wordCount),
+                    endDrawerValues("Images", model.imagesCount),
+                    endDrawerValues("Links", model.linksCount),
+                    endDrawerValues("YouTube videos", model.ytVideosCount),
                     const Text('The read time for this article is estimated to be:'),
-                    Text('${(wordCount / 200).round() + 1} minutes'),
+                    Text('${(model.wordCount / 200).round() + 1} minutes'),
                     tags(),
                     ElevatedButton(
                         onPressed: () {
-                          //store.addSavedBlogsInFirebase(model, 'Blogs');
+                          store.addSavedBlogsInFirebase(model, 'Blogs');
+                          //saveBlog("Blogs");
                         },
                         child: const Text('Publish'))
                   ],
@@ -93,7 +97,10 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
               elevation: 0,
               actions: [Text(save == true ? "Saving..." : "")],
             ),
-            body: SingleChildScrollView(
+            body: Observer(
+              builder:(_){
+                
+                return SingleChildScrollView(
                 scrollDirection: Axis.vertical,
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -102,9 +109,9 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                         Container(
                           height: 100,
                           width: 100,
-                          child: imgUrl == ''
+                          child: model.thumbNail == ''
                               ? Image.asset('assets/noimage.jpg')
-                              : Image.network(imgUrl),
+                              : Image.network(model.thumbNail),
                         ),
                         Positioned(
                           top: 0,
@@ -116,7 +123,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                                       doc = firestoreInstance
                                           .collection("Drafts")
                                           .doc(),
-                                      uid = doc.id,
+                                      uid = model.blogId,
                                     }
                                   : {};
                               uploadToStorage();
@@ -140,17 +147,15 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                         padding: const EdgeInsets.all(8.0),
                         margin: const EdgeInsets.all(8.0),
                         child: TextField(
-                          onChanged: (value) {
-                            print(draftId);
-                            
-                          },
                           controller: headingController,
-                          decoration: const InputDecoration(
-                              hintText: 'Write your title',
+                          decoration: InputDecoration(
+                              hintText: model.headline == ''
+                                  ? 'Write your title'
+                                  : model.headline,
                               border: InputBorder.none),
                         ),
                       ),
-                      Container(height: 500, child: contentBox()),
+                      Container(height: 500, child: contentBox(model)),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(
@@ -215,8 +220,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                                   backgroundColor:
                                       Theme.of(context).colorScheme.secondary),
                               onPressed: () {
-                                
-                                saveBlog("Trash");
+                                store.addSavedBlogsInFirebase(model, 'Trash');
                                 Navigator.of(context).pop();
                               },
                               child: const Text(
@@ -227,14 +231,21 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                           ],
                         ),
                       ),
-                    ]))));
+                    ]
+                    )
+                    );
+              }
+            )
+          )
+        );
   }
 
-  Widget contentBox() {
+  Widget contentBox(BlogModel model) {
     return HtmlEditor(
       controller: controller,
-      htmlEditorOptions: const HtmlEditorOptions(
+      htmlEditorOptions:  HtmlEditorOptions(
         hint: 'Type here to begin...',
+        initialText: model.content,
         shouldEnsureVisible: true,
       ),
       htmlToolbarOptions: HtmlToolbarOptions(
@@ -252,15 +263,15 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
         },
         linkInsertInterceptor: (String text, String url, bool flag) {
           if (url.substring(0, 24) == 'https://www.youtube.com/') {
-            ytVideosCount = ytVideosCount + 1;
+            model.ytVideosCount = model.ytVideosCount + 1;
           } else {
-            linksCount = linksCount + 1;
+            model.linksCount = model.linksCount + 1;
           }
           return true;
         },
         mediaLinkInsertInterceptor: (String url, InsertFileType type) {
           setState(() {
-            imagesCount = imagesCount + 1;
+            model.imagesCount = model.imagesCount + 1;
             result = result + "<img src='$url'";
           });
           return true;
@@ -271,7 +282,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
           print(file.size); //size in bytes
           print(file.extension); //file extension (eg jpeg or mp4)*/
           setState(() {
-            imagesCount = imagesCount + 1;
+            model.imagesCount = model.imagesCount + 1;
           });
           return true;
         },
@@ -280,21 +291,8 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
       callbacks: Callbacks(onBeforeCommand: (String? currentHtml) {
         //print('html before change is $currentHtml');
       }, onChangeContent: (String? changed) async {
-        if (changed != null) {
-          await store.addContentToBlog(changed);
-                   /* if (store.showErrorWhenLoadingData) {
-                    await showDialog(
-                      context: context,
-                      builder: (_) => Provider.value(
-                          value: store,
-                          child: AddHeadlineAndThumbNailDialog(
-                            headLineController: headLineController,
-                          )),
-                    );
-                  }  */
-        }
         //print('code updated to $changed \n');
-        /* final firestoreInstance = FirebaseFirestore.instance;
+        final firestoreInstance = FirebaseFirestore.instance;
         result = changed!;
         String text = result;
         getTextOnlyContent(text);
@@ -302,17 +300,11 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
 
         setState(() {
           RegExp regExp = RegExp(" ");
-          wordCount = regExp.allMatches(textOnlyResult).length + 1;
+          model.wordCount = regExp.allMatches(textOnlyResult).length + 1;
         });
 
-        uid == ''
-            ? {
-                doc = firestoreInstance.collection("Drafts").doc(),
-                uid = doc.id,
-              }
-            : {};
-            
-        saveBlog("Drafts"); */
+        store.addSavedBlogsInFirebase(model, 'Drafts');
+        //saveBlog("Drafts");
       }, onChangeCodeview: (String? changed) {
         //print('code changed to $changed');
       }, onChangeSelection: (EditorSettings settings) {
@@ -329,6 +321,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
       }, onBlurCodeview: () {
         //print('codeview either focused or unfocused');
       }, onInit: () {
+        //controller.setText(model.content);
         controller.enable();
       },
           //this is commented because it overrides the default Summernote handlers

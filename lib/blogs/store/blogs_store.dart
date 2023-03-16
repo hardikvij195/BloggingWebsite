@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_positional_boolean_parameters
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobx/mobx.dart';
 import '../model/blog_model.dart';
 import '../repository/blogs_repository.dart';
@@ -14,13 +15,40 @@ abstract class _BlogsStore with Store {
   ///To get the latest blogs list initially from firebase
   Future<void> init() async {
     await getBlogsList();
+    await getDraftsBlogsList();
+    await getTrashBlogsList();
   }
 
   @observable
   bool fetchingBlogs = false;
 
   @observable
+  bool fetchingDraftsBlogs = false;
+
+  @observable
+  bool fetchingTrashBlogs = false;
+
+  @observable
   ObservableList<BlogModel> blogsList = ObservableList.of([]);
+
+  @observable
+  ObservableList<BlogModel> draftsBlogsList = ObservableList.of([]);
+
+  @observable
+  ObservableList<BlogModel> trashBlogsList = ObservableList.of([]);
+
+  ///To load the data in firebase
+  @observable
+  bool savedOrNot = false;
+
+  ///To show error when loading data
+  @observable
+  bool showErrorWhenLoadingData = false;
+
+  ///To get the blog id when u add headline or thumbNail
+  @observable
+  String blogUid = "";
+
 
   ///To get the blogs data from firebase initially
   @action
@@ -34,5 +62,74 @@ abstract class _BlogsStore with Store {
       }
     }
     fetchingBlogs = false;
+  }
+  
+  //To get the draft blogs data from firebase
+  @action
+  Future<void> getDraftsBlogsList() async {
+    fetchingDraftsBlogs = true;
+    final list = await _blogsRepository.getDraftsBlogs();
+      draftsBlogsList..clear()..addAll(list);
+    fetchingDraftsBlogs = false;
+  }
+
+  //To get the trash blogs data from firebase
+  @action
+  Future<void> getTrashBlogsList() async {
+    fetchingTrashBlogs = true;
+    final list = await _blogsRepository.getTrashBlogs();
+      trashBlogsList..clear()..addAll(list);
+    fetchingTrashBlogs = false;
+  }
+
+  ///To add the saved blogs
+  @action
+  Future<void> addSavedBlogsInFirebase(BlogModel model, String collection) async {
+    await _blogsRepository.addSavedBlogsInFirebase(model, collection);
+  }
+
+  @action
+  Future<void> createAndAddHeadlineOrThumbNailForBlog(
+      String headline, String thumbNail) async {
+    try {
+      savedOrNot = true;
+      blogUid = await _blogsRepository
+          .createAndAddHeadlineOrThumbNailForBlog(headline, thumbNail,);
+      savedOrNot = false;
+    } on Exception catch (_) {
+      showErrorWhenLoadingData = true;
+    }
+  }
+
+  //add content to blog
+  @action
+  Future<void> addContentToBlog(String content) async {
+    try {
+      savedOrNot = true;
+      await _blogsRepository.addContentToBlog(blogUid, content);
+      savedOrNot = false;
+    } on Exception catch (_) {
+      showErrorWhenLoadingData = true;
+    }
+  }
+
+  //-------Move Article to Drafts from firebase--------------------------------------------//
+  Future<void> moveBlogToDraftsOrTrash(
+      String bloggerId, BlogModel model, bool draftsOrTrash) async {
+    await FirebaseFirestore.instance
+        // .collection("BloggerProfile")
+        // .doc(bloggerId)
+        .collection(draftsOrTrash ? "Drafts" : "Trash")
+        .doc(model.blogId)
+        .set(model.savedAndPinnedBlogsToMap());
+  }
+
+  ///To move the blog to drafts/trash
+  @action
+  Future<void> moveArticleToDraftsOrTrash(
+      String bloggerId, String blogId, bool draftsOrTrash) async {
+    final model = await _blogsRepository.getBlogDetailsFromFirebase(blogId);
+    await _blogsRepository.moveBlogToDraftsOrTrash(
+        bloggerId, model, draftsOrTrash);
   }
 }

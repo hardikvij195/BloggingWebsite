@@ -25,6 +25,38 @@ mixin _$BlogsStore on _BlogsStore, Store {
     });
   }
 
+  late final _$fetchingDraftsBlogsAtom =
+      Atom(name: '_BlogsStore.fetchingDraftsBlogs', context: context);
+
+  @override
+  bool get fetchingDraftsBlogs {
+    _$fetchingDraftsBlogsAtom.reportRead();
+    return super.fetchingDraftsBlogs;
+  }
+
+  @override
+  set fetchingDraftsBlogs(bool value) {
+    _$fetchingDraftsBlogsAtom.reportWrite(value, super.fetchingDraftsBlogs, () {
+      super.fetchingDraftsBlogs = value;
+    });
+  }
+
+  late final _$fetchingTrashBlogsAtom =
+      Atom(name: '_BlogsStore.fetchingTrashBlogs', context: context);
+
+  @override
+  bool get fetchingTrashBlogs {
+    _$fetchingTrashBlogsAtom.reportRead();
+    return super.fetchingTrashBlogs;
+  }
+
+  @override
+  set fetchingTrashBlogs(bool value) {
+    _$fetchingTrashBlogsAtom.reportWrite(value, super.fetchingTrashBlogs, () {
+      super.fetchingTrashBlogs = value;
+    });
+  }
+
   late final _$blogsListAtom =
       Atom(name: '_BlogsStore.blogsList', context: context);
 
@@ -41,6 +73,87 @@ mixin _$BlogsStore on _BlogsStore, Store {
     });
   }
 
+  late final _$draftsBlogsListAtom =
+      Atom(name: '_BlogsStore.draftsBlogsList', context: context);
+
+  @override
+  ObservableList<BlogModel> get draftsBlogsList {
+    _$draftsBlogsListAtom.reportRead();
+    return super.draftsBlogsList;
+  }
+
+  @override
+  set draftsBlogsList(ObservableList<BlogModel> value) {
+    _$draftsBlogsListAtom.reportWrite(value, super.draftsBlogsList, () {
+      super.draftsBlogsList = value;
+    });
+  }
+
+  late final _$trashBlogsListAtom =
+      Atom(name: '_BlogsStore.trashBlogsList', context: context);
+
+  @override
+  ObservableList<BlogModel> get trashBlogsList {
+    _$trashBlogsListAtom.reportRead();
+    return super.trashBlogsList;
+  }
+
+  @override
+  set trashBlogsList(ObservableList<BlogModel> value) {
+    _$trashBlogsListAtom.reportWrite(value, super.trashBlogsList, () {
+      super.trashBlogsList = value;
+    });
+  }
+
+  late final _$savedOrNotAtom =
+      Atom(name: '_BlogsStore.savedOrNot', context: context);
+
+  @override
+  bool get savedOrNot {
+    _$savedOrNotAtom.reportRead();
+    return super.savedOrNot;
+  }
+
+  @override
+  set savedOrNot(bool value) {
+    _$savedOrNotAtom.reportWrite(value, super.savedOrNot, () {
+      super.savedOrNot = value;
+    });
+  }
+
+  late final _$showErrorWhenLoadingDataAtom =
+      Atom(name: '_BlogsStore.showErrorWhenLoadingData', context: context);
+
+  @override
+  bool get showErrorWhenLoadingData {
+    _$showErrorWhenLoadingDataAtom.reportRead();
+    return super.showErrorWhenLoadingData;
+  }
+
+  @override
+  set showErrorWhenLoadingData(bool value) {
+    _$showErrorWhenLoadingDataAtom
+        .reportWrite(value, super.showErrorWhenLoadingData, () {
+      super.showErrorWhenLoadingData = value;
+    });
+  }
+
+  late final _$blogUidAtom =
+      Atom(name: '_BlogsStore.blogUid', context: context);
+
+  @override
+  String get blogUid {
+    _$blogUidAtom.reportRead();
+    return super.blogUid;
+  }
+
+  @override
+  set blogUid(String value) {
+    _$blogUidAtom.reportWrite(value, super.blogUid, () {
+      super.blogUid = value;
+    });
+  }
+
   late final _$getBlogsListAsyncAction =
       AsyncAction('_BlogsStore.getBlogsList', context: context);
 
@@ -49,11 +162,74 @@ mixin _$BlogsStore on _BlogsStore, Store {
     return _$getBlogsListAsyncAction.run(() => super.getBlogsList());
   }
 
+  late final _$getDraftsBlogsListAsyncAction =
+      AsyncAction('_BlogsStore.getDraftsBlogsList', context: context);
+
+  @override
+  Future<void> getDraftsBlogsList() {
+    return _$getDraftsBlogsListAsyncAction
+        .run(() => super.getDraftsBlogsList());
+  }
+
+  late final _$getTrashBlogsListAsyncAction =
+      AsyncAction('_BlogsStore.getTrashBlogsList', context: context);
+
+  @override
+  Future<void> getTrashBlogsList() {
+    return _$getTrashBlogsListAsyncAction.run(() => super.getTrashBlogsList());
+  }
+
+  late final _$addSavedBlogsInFirebaseAsyncAction =
+      AsyncAction('_BlogsStore.addSavedBlogsInFirebase', context: context);
+
+  @override
+  Future<void> addSavedBlogsInFirebase(BlogModel model, String collection) {
+    return _$addSavedBlogsInFirebaseAsyncAction
+        .run(() => super.addSavedBlogsInFirebase(model, collection));
+  }
+
+  late final _$createAndAddHeadlineOrThumbNailForBlogAsyncAction = AsyncAction(
+      '_BlogsStore.createAndAddHeadlineOrThumbNailForBlog',
+      context: context);
+
+  @override
+  Future<void> createAndAddHeadlineOrThumbNailForBlog(
+      String headline, String thumbNail) {
+    return _$createAndAddHeadlineOrThumbNailForBlogAsyncAction.run(() =>
+        super.createAndAddHeadlineOrThumbNailForBlog(headline, thumbNail));
+  }
+
+  late final _$addContentToBlogAsyncAction =
+      AsyncAction('_BlogsStore.addContentToBlog', context: context);
+
+  @override
+  Future<void> addContentToBlog(String content) {
+    return _$addContentToBlogAsyncAction
+        .run(() => super.addContentToBlog(content));
+  }
+
+  late final _$moveArticleToDraftsOrTrashAsyncAction =
+      AsyncAction('_BlogsStore.moveArticleToDraftsOrTrash', context: context);
+
+  @override
+  Future<void> moveArticleToDraftsOrTrash(
+      String bloggerId, String blogId, bool draftsOrTrash) {
+    return _$moveArticleToDraftsOrTrashAsyncAction.run(() =>
+        super.moveArticleToDraftsOrTrash(bloggerId, blogId, draftsOrTrash));
+  }
+
   @override
   String toString() {
     return '''
 fetchingBlogs: ${fetchingBlogs},
-blogsList: ${blogsList}
+fetchingDraftsBlogs: ${fetchingDraftsBlogs},
+fetchingTrashBlogs: ${fetchingTrashBlogs},
+blogsList: ${blogsList},
+draftsBlogsList: ${draftsBlogsList},
+trashBlogsList: ${trashBlogsList},
+savedOrNot: ${savedOrNot},
+showErrorWhenLoadingData: ${showErrorWhenLoadingData},
+blogUid: ${blogUid}
     ''';
   }
 }

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:internship_website/Drafts.dart';
+import 'package:internship_website/blogs/screens/drafts_screen.dart';
 import 'package:internship_website/blogs/screens/create_blog_screen.dart';
 import 'package:internship_website/blogs/store/blogs_store.dart';
 import 'package:internship_website/loadingScreen.dart';
 import 'package:internship_website/login.dart';
 import 'package:internship_website/profile.dart';
-import 'package:internship_website/trash.dart';
+import 'package:internship_website/blogs/screens/trash_screen.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(
+      body: Container(
       padding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,7 +49,10 @@ class _HomePageState extends State<HomePage> {
                   InkWell(
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const Trash()));
+                          builder: (context) => Provider.value(
+                                value: store..getTrashBlogsList(),
+                                child: const TrashScreen(),
+                              )));
                     },
                     child: const Text('Trash'),
                   ),
@@ -59,7 +62,10 @@ class _HomePageState extends State<HomePage> {
                   InkWell(
                     onTap: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const Drafts()));
+                          builder: (context) => Provider.value(
+                                value: store..getDraftsBlogsList(),
+                                child: const DraftsScreen(),
+                              )));
                     },
                     child: const Text('Drafts'),
                   ),
@@ -71,10 +77,7 @@ class _HomePageState extends State<HomePage> {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => Provider.value(
                                 value: store,
-                                child: CreateBlogScreen(
-                                  isEditable: false,
-                                  uid: '',
-                                ),
+                                child: const CreateBlogScreen(),
                               )));
                     },
                     child: Container(
@@ -137,7 +140,7 @@ class _HomePageState extends State<HomePage> {
 }
 
 class _BlogsWidget extends StatelessWidget {
-  const _BlogsWidget({Key? key});
+  const _BlogsWidget();
 
   @override
   Widget build(BuildContext context) {

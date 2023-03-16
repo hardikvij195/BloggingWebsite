@@ -87,10 +87,10 @@ class BlogModel {
   final bool isPublished;
   final bool showThumbNailAtFirstLine;
   final bool savedBlog;
-  final int wordCount;
-  final int imagesCount;
-  final int linksCount;
-  final int ytVideosCount;
+  late final int wordCount;
+  late final int imagesCount;
+  late final int linksCount;
+  late final int ytVideosCount;
   final String textOnlyContent;
 
   /// post [DocumentSnapshot]
