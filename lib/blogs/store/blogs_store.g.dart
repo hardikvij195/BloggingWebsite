@@ -57,6 +57,55 @@ mixin _$BlogsStore on _BlogsStore, Store {
     });
   }
 
+  late final _$uploadingBlogThumbNailAtom =
+      Atom(name: '_BlogsStore.uploadingBlogThumbNail', context: context);
+
+  @override
+  bool get uploadingBlogThumbNail {
+    _$uploadingBlogThumbNailAtom.reportRead();
+    return super.uploadingBlogThumbNail;
+  }
+
+  @override
+  set uploadingBlogThumbNail(bool value) {
+    _$uploadingBlogThumbNailAtom
+        .reportWrite(value, super.uploadingBlogThumbNail, () {
+      super.uploadingBlogThumbNail = value;
+    });
+  }
+
+  late final _$isPublishClickedAtom =
+      Atom(name: '_BlogsStore.isPublishClicked', context: context);
+
+  @override
+  bool get isPublishClicked {
+    _$isPublishClickedAtom.reportRead();
+    return super.isPublishClicked;
+  }
+
+  @override
+  set isPublishClicked(bool value) {
+    _$isPublishClickedAtom.reportWrite(value, super.isPublishClicked, () {
+      super.isPublishClicked = value;
+    });
+  }
+
+  late final _$blogThumbNailAtom =
+      Atom(name: '_BlogsStore.blogThumbNail', context: context);
+
+  @override
+  BlogsImageModel get blogThumbNail {
+    _$blogThumbNailAtom.reportRead();
+    return super.blogThumbNail;
+  }
+
+  @override
+  set blogThumbNail(BlogsImageModel value) {
+    _$blogThumbNailAtom.reportWrite(value, super.blogThumbNail, () {
+      super.blogThumbNail = value;
+    });
+  }
+
   late final _$blogsListAtom =
       Atom(name: '_BlogsStore.blogsList', context: context);
 
@@ -188,6 +237,14 @@ mixin _$BlogsStore on _BlogsStore, Store {
         .run(() => super.addSavedBlogsInFirebase(model, collection));
   }
 
+  late final _$createIdForBlogAsyncAction =
+      AsyncAction('_BlogsStore.createIdForBlog', context: context);
+
+  @override
+  Future<void> createIdForBlog() {
+    return _$createIdForBlogAsyncAction.run(() => super.createIdForBlog());
+  }
+
   late final _$createAndAddHeadlineOrThumbNailForBlogAsyncAction = AsyncAction(
       '_BlogsStore.createAndAddHeadlineOrThumbNailForBlog',
       context: context);
@@ -203,9 +260,27 @@ mixin _$BlogsStore on _BlogsStore, Store {
       AsyncAction('_BlogsStore.addContentToBlog', context: context);
 
   @override
-  Future<void> addContentToBlog(String content) {
+  Future<void> addContentToBlog(String content, String textOnlyContent) {
     return _$addContentToBlogAsyncAction
-        .run(() => super.addContentToBlog(content));
+        .run(() => super.addContentToBlog(content, textOnlyContent));
+  }
+
+  late final _$addLinkCountAsyncAction =
+      AsyncAction('_BlogsStore.addLinkCount', context: context);
+
+  @override
+  Future<void> addLinkCount(int ytVideosCount, int linksCount) {
+    return _$addLinkCountAsyncAction
+        .run(() => super.addLinkCount(ytVideosCount, linksCount));
+  }
+
+  late final _$addImagesCountAsyncAction =
+      AsyncAction('_BlogsStore.addImagesCount', context: context);
+
+  @override
+  Future<void> addImagesCount(int imagesCount) {
+    return _$addImagesCountAsyncAction
+        .run(() => super.addImagesCount(imagesCount));
   }
 
   late final _$moveArticleToDraftsOrTrashAsyncAction =
@@ -224,6 +299,9 @@ mixin _$BlogsStore on _BlogsStore, Store {
 fetchingBlogs: ${fetchingBlogs},
 fetchingDraftsBlogs: ${fetchingDraftsBlogs},
 fetchingTrashBlogs: ${fetchingTrashBlogs},
+uploadingBlogThumbNail: ${uploadingBlogThumbNail},
+isPublishClicked: ${isPublishClicked},
+blogThumbNail: ${blogThumbNail},
 blogsList: ${blogsList},
 draftsBlogsList: ${draftsBlogsList},
 trashBlogsList: ${trashBlogsList},

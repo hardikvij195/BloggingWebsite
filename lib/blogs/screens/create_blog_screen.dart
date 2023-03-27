@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:html';
+
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:html/parser.dart';
@@ -7,12 +8,16 @@ import 'package:internship_website/blogs/model/blog_model.dart';
 import 'package:internship_website/blogs/repository/blogs_repository.dart';
 import 'package:internship_website/blogs/store/blogs_store.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:html_editor_enhanced/html_editor.dart';
+import '../model/blogs_image_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:html_parser_plus/html_parser_plus.dart';
+import 'package:internship_website/image_helper.dart';
 
 class CreateBlogScreen extends StatefulWidget {
   const CreateBlogScreen({Key? key})
@@ -50,8 +55,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
   @override
   void initState() {
     super.initState();
-    store.createAndAddHeadlineOrThumbNailForBlog(
-      headingController.text, 'thumbNail');
+    store.createIdForBlog();
     _controller = TextfieldTagsController();
   }
 
@@ -111,15 +115,22 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                           right: 0,
                           child: InkWell(
                             onTap: () async {
-                              uid == ''
-                                  ? {
-                                      doc = firestoreInstance
-                                          .collection("Drafts")
-                                          .doc(),
-                                      uid = doc.id,
-                                    }
-                                  : {};
-                              uploadToStorage();
+                              final imgPath =
+                                await ImageHelper().selectImage(true, imageQuality: 40);
+                              if (imgPath != null) {
+                                store
+                                  ..uploadingBlogThumbNail = true
+                                  ..blogThumbNail = BlogsImageModel(
+                                    imgFile: File(
+                                      imgPath.path,
+                                    ),
+                                  )
+                                  ..uploadingBlogThumbNail = false;
+                              }
+                              /* final imgPath = 
+                              await ImageHelper(image: '', imageType: ,).selectImage(true, imageQuality: 40);
+                              String imgUrl = store.uploadThumbnailToStorage(imgPath);
+                              store.createAndAddHeadlineOrThumbNailForBlog('', imgUrl); */
                             },
                             child: Container(
                                 height: 30,
@@ -141,8 +152,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
                         margin: const EdgeInsets.all(8.0),
                         child: TextField(
                           onChanged: (value) {
-                            print(draftId);
-                            
+                            store.createAndAddHeadlineOrThumbNailForBlog(value, '');
                           },
                           controller: headingController,
                           decoration: const InputDecoration(
@@ -256,13 +266,19 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
           } else {
             linksCount = linksCount + 1;
           }
+          store.addLinkCount(ytVideosCount, linksCount);
           return true;
         },
+
         mediaLinkInsertInterceptor: (String url, InsertFileType type) {
-          setState(() {
+          setState(() async{
             imagesCount = imagesCount + 1;
-            result = result + "<img src='$url'";
+            result = result  + "<img src='$url'";
+            String textOnlyContent = getTextOnlyContent(result);
+            await store.addContentToBlog(result, textOnlyContent);
+            store.addImagesCount(imagesCount);
           });
+          
           return true;
         },
 
@@ -272,6 +288,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
           print(file.extension); //file extension (eg jpeg or mp4)*/
           setState(() {
             imagesCount = imagesCount + 1;
+            store.addImagesCount(imagesCount);
           });
           return true;
         },
@@ -279,19 +296,12 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
       otherOptions: const OtherOptions(height: 550),
       callbacks: Callbacks(onBeforeCommand: (String? currentHtml) {
         //print('html before change is $currentHtml');
-      }, onChangeContent: (String? changed) async {
+      },
+      onChangeContent: (String? changed) async {
         if (changed != null) {
-          await store.addContentToBlog(changed);
-                   /* if (store.showErrorWhenLoadingData) {
-                    await showDialog(
-                      context: context,
-                      builder: (_) => Provider.value(
-                          value: store,
-                          child: AddHeadlineAndThumbNailDialog(
-                            headLineController: headLineController,
-                          )),
-                    );
-                  }  */
+          String textOnlyContent = getTextOnlyContent(changed);
+          result = changed;
+          await store.addContentToBlog(changed, textOnlyContent);
         }
         //print('code updated to $changed \n');
         /* final firestoreInstance = FirebaseFirestore.instance;
@@ -521,23 +531,23 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
     }
   }
 
-  uploadToStorage() {
-    FileUploadInputElement input = FileUploadInputElement()..accept = 'image/*';
-    FirebaseStorage fs = FirebaseStorage.instance;
-    input.click();
-    input.onChange.listen((event) {
-      final file = input.files?.first;
-      final reader = FileReader();
-      reader.readAsDataUrl(file!);
-      reader.onLoadEnd.listen((event) async {
-        var snapshot = await fs.ref().child('thumbnail/$uid').putBlob(file);
-        String downloadUrl = await snapshot.ref.getDownloadURL();
-        setState(() {
-          imgUrl = downloadUrl;
-        });
-      });
-    });
-  }
+  // uploadToStorage() {
+  //   FileUploadInputElement input = FileUploadInputElement()..accept = 'image/*';
+  //   FirebaseStorage fs = FirebaseStorage.instance;
+  //   input.click();
+  //   input.onChange.listen((event) {
+  //     final file = input.files?.first;
+  //     final reader = FileReader();
+  //     reader.readAsDataUrl(file!);
+  //     reader.onLoadEnd.listen((event) async {
+  //       var snapshot = await fs.ref().child('thumbnail/$uid').putBlob(file);
+  //       String downloadUrl = await snapshot.ref.getDownloadURL();
+  //       setState(() {
+  //         imgUrl = downloadUrl;
+  //       });
+  //     });
+  //   });
+  // }
 
   String _parseHtmlString(String htmlString) {
     final document = parse(htmlString);
@@ -546,7 +556,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
     return parsedString;
   }
 
-  void getTextOnlyContent(String text) {
+  String getTextOnlyContent(String text) {
     List getTextContent = [];
     final parseText = parse(text);
     final listOfElements = parseText.querySelectorAll("p");
@@ -560,6 +570,7 @@ class _CreateBlogScreenState extends State<CreateBlogScreen> {
       }
     }
     textOnlyResult = getTextContent.join(" ");
+    return textOnlyResult;
   }
 
   endDrawerValues(String heading, int value) {

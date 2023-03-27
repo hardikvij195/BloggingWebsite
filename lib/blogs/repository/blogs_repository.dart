@@ -73,28 +73,39 @@ class BlogsRepository {
   }
 
   //-----------------Upload Thumbnail to firebase------------------//
-  /* Future<String> uploadThumbnailToStorage(File file) async {
+  Future<String> uploadThumbnailToStorage(File file) async {
     final thumbNail = const Uuid().v4();
     final metadata = SettableMetadata(contentType: "image/jpeg");
-    final storageRef = FirebaseStorage.instance.ref('Blogs/$_uid');
+    //final storageRef = FirebaseStorage.instance.ref('Blogs/$_uid');
+    final storageRef = FirebaseStorage.instance.ref('Blogs/');
     final uploadTask =
         await storageRef.child("$thumbNail.jpg").putFile(file, metadata);
     final url = uploadTask.ref.getDownloadURL();
     return url;
-  } */
+  }
+
+  //publish blog to Blogs collection
+  Future<String> publishBlogInBlogs() async {
+    await FirebaseFirestore.instance
+      .collection("Blogs")
+      .doc(draftId)
+      .update({
+        "createdAt" : Timestamp.now(),
+        /* "bloggerUid" : _uid,
+        "bloggerName": model.name,
+        "bloggerImgUrl": model.imgUrl */
+      });
+    return draftId;
+  }
 
   String draftId = "";
-  //-------Add Headline/Thumbnail in Firebase--------------------------------------------//
-  Future<String> createAndAddHeadlineOrThumbNailForBlog(
-    String headline, String thumbNail) async {
-    
-    FirebaseFirestore.instance
+  //-------Creating id for blog in Firebase--------------------------------------------//
+  Future<String> createIdForBlog() async {
+    await FirebaseFirestore.instance
       /* .collection("BloggerProfile")
       .doc(_uid) */
       .collection("Drafts")
       .add({
-        if (headline.isNotEmpty) "headline": headline,
-        if (thumbNail.isNotEmpty) "thumbNail": thumbNail,
         "createdAt" : Timestamp.now(),
         /* "bloggerUid" : _uid,
         "bloggerName": model.name,
@@ -105,10 +116,42 @@ class BlogsRepository {
     return draftId;
   }
 
+  //add headline or thumbNail in firebase
+  Future<void> createAndAddHeadlineOrThumbNailForBlog(String headline, String thumbNail) async {
+    await FirebaseFirestore.instance
+      /* .collection("BloggerProfile")
+      .doc(_uid) */
+      .collection("Drafts")
+      .doc(draftId)
+      .update({
+        "blogId" : draftId,
+        "showThumbNailAtFirstLine": true,
+        if (headline.isNotEmpty) "headline": headline,
+        if (thumbNail.isNotEmpty) "thumbNail": thumbNail,
+      });
+  }
+
   //-------Add Content To the blog--------------------------------------------//
-  Future<void> addContentToBlog(String blogId, String content) async {
-    await FirebaseFirestore.instance.collection("Blogs").doc(blogId).update({
+  Future<void> addContentToBlog(String blogId, String content, String textOnlyContent) async {
+    RegExp regExp = RegExp(" ");
+    final wordCount = regExp.allMatches(textOnlyContent).length + 1;
+    await FirebaseFirestore.instance.collection("Drafts").doc(draftId).update({
       "content": content,
+      "wordCount" : wordCount,
+      "textOnlyContent" : textOnlyContent
+    });
+  }
+
+  Future<void> addLinkCount(int ytVideosCount, int linksCount) async {
+    await FirebaseFirestore.instance.collection("Drafts").doc(draftId).update({
+      "ytVideosCount": ytVideosCount,
+      "linksCount" : linksCount,
+    });
+  }
+
+  Future<void> addImagesCount(int imagesCount) async {
+    await FirebaseFirestore.instance.collection("Drafts").doc(draftId).update({
+      "imagesCount": imagesCount,
     });
   }
 

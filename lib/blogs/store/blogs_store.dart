@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobx/mobx.dart';
 import '../model/blog_model.dart';
+import '../model/blogs_image_model.dart';
 import '../repository/blogs_repository.dart';
 
 part 'blogs_store.g.dart';
@@ -27,6 +28,15 @@ abstract class _BlogsStore with Store {
 
   @observable
   bool fetchingTrashBlogs = false;
+  
+  @observable
+  bool uploadingBlogThumbNail = false;
+
+  @observable
+  bool isPublishClicked = false;
+
+  @observable
+  BlogsImageModel blogThumbNail = BlogsImageModel();
 
   @observable
   ObservableList<BlogModel> blogsList = ObservableList.of([]);
@@ -89,12 +99,29 @@ abstract class _BlogsStore with Store {
   }
 
   @action
-  Future<void> createAndAddHeadlineOrThumbNailForBlog(
-      String headline, String thumbNail) async {
+  Future<void> createIdForBlog() async {
     try {
       savedOrNot = true;
       blogUid = await _blogsRepository
-          .createAndAddHeadlineOrThumbNailForBlog(headline, thumbNail,);
+          .createIdForBlog();
+      savedOrNot = false;
+      
+    } on Exception catch (_) {
+      showErrorWhenLoadingData = true;
+    }
+  }
+
+  //add headline or thumbNail to blog
+  @action
+  Future<void> createAndAddHeadlineOrThumbNailForBlog(String headline, String thumbNail) async {
+    try {
+      savedOrNot = true;
+      String thumbNailUrl;
+      /* if (thumbNail != null) {
+        thumbNailUrl = await _blogsRepository
+            .uploadThumbnailToStorage(thumbNail);
+      } */
+      await _blogsRepository.createAndAddHeadlineOrThumbNailForBlog(headline, thumbNail);
       savedOrNot = false;
     } on Exception catch (_) {
       showErrorWhenLoadingData = true;
@@ -103,10 +130,34 @@ abstract class _BlogsStore with Store {
 
   //add content to blog
   @action
-  Future<void> addContentToBlog(String content) async {
+  Future<void> addContentToBlog(String content, String textOnlyContent) async {
     try {
       savedOrNot = true;
-      await _blogsRepository.addContentToBlog(blogUid, content);
+      await _blogsRepository.addContentToBlog(blogUid, content, textOnlyContent);
+      savedOrNot = false;
+    } on Exception catch (_) {
+      showErrorWhenLoadingData = true;
+    }
+  }
+
+  //add images count to blog
+  @action
+  Future<void> addLinkCount(int ytVideosCount, int linksCount) async {
+    try {
+      savedOrNot = true;
+      await _blogsRepository.addLinkCount(ytVideosCount, linksCount);
+      savedOrNot = false;
+    } on Exception catch (_) {
+      showErrorWhenLoadingData = true;
+    }
+  }
+
+  //add links to blog
+  @action
+  Future<void> addImagesCount(int imagesCount) async {
+    try {
+      savedOrNot = true;
+      await _blogsRepository.addImagesCount(imagesCount);
       savedOrNot = false;
     } on Exception catch (_) {
       showErrorWhenLoadingData = true;
@@ -131,5 +182,17 @@ abstract class _BlogsStore with Store {
     final model = await _blogsRepository.getBlogDetailsFromFirebase(blogId);
     await _blogsRepository.moveBlogToDraftsOrTrash(
         bloggerId, model, draftsOrTrash);
+  }
+
+  bool get blogThumbNailUploading {
+    if (isPublishClicked) {
+      if (uploadingBlogThumbNail == true) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
 }
