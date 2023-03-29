@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:internship_website/blogs/screens/home_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:internship_website/blogs/store/blogs_store.dart';
+import 'package:internship_website/feature/blogs/screens/home_screen.dart';
+import 'package:internship_website/feature/blogs/store/main_store.dart';
 import 'package:provider/provider.dart';
+import 'feature/login/login.dart';
+import 'feature/login/store/login_store.dart';
+import 'firebase_options.dart';
+
+import 'feature/blogs/store/blogs_store.dart';
 
 //late int initScreen;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-      options: const FirebaseOptions(
-          apiKey: "AIzaSyAI6hWWy5quQTVgAhtUXrSK44y5ZOSG8D4",
-          authDomain: "mw-analysis.firebaseapp.com",
-          projectId: "mw-analysis",
-          storageBucket: "mw-analysis.appspot.com",
-          messagingSenderId: "1066554580954",
-          appId: "1:1066554580954:web:12c3c42b91cfad4265aae3",
-          measurementId: "G-7BPN29EY31"));
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -27,7 +26,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider(create: (_) => BlogsStore()..init()),
+        ChangeNotifierProvider<LoginStore>(
+          create: (_) => LoginStore(),
+        ),
+        Provider(create: (_) => MainStore()..initInternetStream()),
+        Provider(create: (_) => BlogsStore()),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
@@ -35,7 +38,58 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         debugShowCheckedModeBanner: false,
-        home: HomePage(),
+        home: const CheckLogin(),
+      ),
+    );
+  }
+}
+
+class CheckLogin extends StatefulWidget {
+  const CheckLogin({Key? key}) : super(key: key);
+
+  @override
+  CheckLoginState createState() => CheckLoginState();
+}
+
+class CheckLoginState extends State<CheckLogin> {
+  bool isLoggedIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<LoginStore>(context, listen: false)
+        .isAlreadyAuthenticated(context)
+        .then((value) {
+      if (value) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
+      } else {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Text("Checking Login")
+        ],
       ),
     );
   }
